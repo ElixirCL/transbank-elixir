@@ -13,7 +13,7 @@ by adding `transbank` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:transbank_sdk, "~> 0.1.0"}
+    {:transbank, "~> 0.1.0"}
   ]
 end
 ```
