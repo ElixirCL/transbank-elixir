@@ -1,5 +1,4 @@
 defmodule Transbank.Webpay.WebpayPlus do
-  # class MallTransaction < Transbank.Common.BaseTransaction
   defstruct [
     :commerce_code,
     :api_key,
@@ -8,11 +7,11 @@ defmodule Transbank.Webpay.WebpayPlus do
 
   def default_environment, do: :integration
   def resources_url, do: Transbank.Common.ApiConstants.webpay_endpoint()
-  def create_endpoint(token), do: resources_url <> "/transactions/"
-  def commit_endpoint(token), do: resources_url <> "/transactions/#{token}"
-  def status_endpoint(token), do: resources_url <> "/transactions/#{token}"
-  def refund_endpoint(token), do: resources_url <> "/transactions/#{token}/refunds"
-  def capture_endpoint(token), do: resources_url <> "/transactions/#{token}/capture"
+  def create_endpoint(), do: resources_url() <> "/transactions/"
+  def commit_endpoint(token), do: resources_url() <> "/transactions/#{token}"
+  def status_endpoint(token), do: resources_url() <> "/transactions/#{token}"
+  def refund_endpoint(token), do: resources_url() <> "/transactions/#{token}/refunds"
+  def capture_endpoint(token), do: resources_url() <> "/transactions/#{token}/capture"
 
   def new(
         # = Transbank.Common.IntegrationCommerceCodes.webpay_plus_modal(),
@@ -30,8 +29,6 @@ defmodule Transbank.Webpay.WebpayPlus do
         environment
       )
     )
-
-    # super(commerce_code, api_key, environment)
   end
 
   def status(trx, token) do

@@ -5,13 +5,12 @@ defmodule Transbank.Webpay.Oneclick.MallTransaction do
     :environment
   ]
 
-  # class MallTransaction < .Transbank.Common.BaseTransaction
   def default_environment, do: :integration
   def resources_url, do: Transbank.Common.ApiConstants.oneclick_endpoint()
-  def authorize_endpoint, do: resources_url <> "/transactions"
-  def status_endpoint(token), do: resources_url <> "/transactions/#{token}"
-  def refund_endpoint(token), do: resources_url <> "/transactions/#{token}/refunds"
-  def capture_endpoint, do: resources_url <> "/transactions/capture"
+  def authorize_endpoint, do: resources_url() <> "/transactions"
+  def status_endpoint(token), do: resources_url() <> "/transactions/#{token}"
+  def refund_endpoint(token), do: resources_url() <> "/transactions/#{token}/refunds"
+  def capture_endpoint, do: resources_url() <> "/transactions/capture"
 
   def new(
         # = Transbank.Common.IntegrationCommerceCodes.oneclick_mall(),
@@ -28,8 +27,6 @@ defmodule Transbank.Webpay.Oneclick.MallTransaction do
         environment
       )
     )
-
-    # super(commerce_code, api_key, environment)
   end
 
   def authorize(trx, username, tbk_user, parent_buy_order, details) do

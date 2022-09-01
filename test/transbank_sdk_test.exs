@@ -42,7 +42,7 @@ defmodule TransbankTest do
     transaction =
       Transbank.Webpay.WebpayPlus.Transaction.new(
         Transbank.Common.IntegrationCommerceCodes.webpay_plus(),
-        api_key = Transbank.Common.IntegrationApiKeys.webpay(),
+        _api_key = Transbank.Common.IntegrationApiKeys.webpay(),
         :integration
       )
 
@@ -67,7 +67,7 @@ defmodule TransbankTest do
                    transaction =
                      Transbank.Webpay.WebpayPlus.Transaction.new(
                        Transbank.Common.IntegrationCommerceCodes.webpay_plus(),
-                       api_key = Transbank.Common.IntegrationApiKeys.webpay(),
+                       _api_key = Transbank.Common.IntegrationApiKeys.webpay(),
                        :integration
                      )
 
@@ -90,7 +90,7 @@ defmodule TransbankTest do
                    transaction =
                      Transbank.Webpay.WebpayPlus.Transaction.new(
                        Transbank.Common.IntegrationCommerceCodes.webpay_plus(),
-                       api_key = Transbank.Common.IntegrationApiKeys.webpay(),
+                       _api_key = Transbank.Common.IntegrationApiKeys.webpay(),
                        :integration
                      )
 
@@ -119,7 +119,7 @@ defmodule TransbankTest do
                    transaction =
                      Transbank.Webpay.WebpayPlus.Transaction.new(
                        Transbank.Common.IntegrationCommerceCodes.webpay_plus(),
-                       api_key = Transbank.Common.IntegrationApiKeys.webpay(),
+                       _api_key = Transbank.Common.IntegrationApiKeys.webpay(),
                        :integration
                      )
 
@@ -143,7 +143,7 @@ defmodule TransbankTest do
     transaction =
       Transbank.Webpay.WebpayPlus.Transaction.new(
         Transbank.Common.IntegrationCommerceCodes.webpay_plus(),
-        api_key = Transbank.Common.IntegrationApiKeys.webpay(),
+        _api_key = Transbank.Common.IntegrationApiKeys.webpay(),
         :integration
       )
 
@@ -162,7 +162,7 @@ defmodule TransbankTest do
                    transaction =
                      Transbank.Webpay.WebpayPlus.Transaction.new(
                        Transbank.Common.IntegrationCommerceCodes.webpay_plus(),
-                       api_key = Transbank.Common.IntegrationApiKeys.webpay(),
+                       _api_key = Transbank.Common.IntegrationApiKeys.webpay(),
                        :integration
                      )
 

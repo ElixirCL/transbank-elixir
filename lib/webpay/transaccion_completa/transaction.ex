@@ -5,7 +5,6 @@ defmodule Transbank.Webpay.TransaccionCompleta do
     :environment
   ]
 
-  # class Transaction < Transbank.Common.BaseTransaction
   def default_environment, do: :integration
   def resources_url, do: Transbank.Common.ApiConstants.webpay_endpoint()
   def create_endpoint, do: resources_url() <> "/transactions/"
@@ -30,8 +29,6 @@ defmodule Transbank.Webpay.TransaccionCompleta do
         environment
       )
     )
-
-    # super
   end
 
   def create(trx, buy_order, session_id, amount, cvv, card_number, card_expiration_date) do

@@ -5,7 +5,6 @@ defmodule Transbank.Webpay.WebpayPlus.Transaction do
     :environment
   ]
 
-  # class Transaction < Transbank.Common.BaseTransaction
   def default_environment, do: :integration
   def resources_url, do: Transbank.Common.ApiConstants.webpay_endpoint()
   def create_endpoint, do: resources_url() <> "/transactions/"
@@ -22,7 +21,6 @@ defmodule Transbank.Webpay.WebpayPlus.Transaction do
         environment \\ default_environment()
       ) do
     struct(__MODULE__, Transbank.Common.BaseTransaction.new(commerce_code, api_key, environment))
-    # super(commerce_code, api_key, environment)
   end
 
   def create(trx, buy_order, session_id, amount, return_url) do
