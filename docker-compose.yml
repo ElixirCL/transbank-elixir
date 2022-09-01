@@ -1,0 +1,21 @@
+version: '2'
+services:
+  web:
+    &web
+    tty: true
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: mix test
+    volumes:
+      - .:/sdk
+    volumes_from:
+      - bundle_cache
+    ports:
+      - "8000:8000"
+
+  bundle_cache:
+    image: elixir:latest # Should be the same as the app Dockerfile.dev base image
+    volumes:
+      - /usr/local/bundle

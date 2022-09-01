@@ -1,6 +1,6 @@
 # This file is responsible for configuring your application
 # and its dependencies with the aid of the Mix.Config module.
-use Mix.Config
+import Config
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment

@@ -11,8 +11,8 @@ build: .built .bundled
 	docker-compose build
 	touch .built
 
-.bundled: Gemfile
-	docker-compose run web bundle install
+.bundled: mix.exs
+	docker-compose run web mix deps.get
 	touch .bundled
 
 logs:
