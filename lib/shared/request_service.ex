@@ -1,42 +1,62 @@
-defmodule TransbankSdk.Shared.RequestService do
+defmodule Transbank.Shared.RequestService do
   @environments %{
     production: "https://webpay3g.transbank.cl/",
     integration: "https://webpay3gint.transbank.cl/"
   }
 
-  def initialize(environment = nil, endpoint, commerce_code, api_key) do
-    @commerce_code = commerce_code
-    @api_key = api_key
+  def new(environment, endpoint, commerce_code, api_key) do
+    commerce_code = commerce_code
+    api_key = api_key
 
-    if environment.nil? do
-      @url = endpoint
-    else
-      @url = ENVIRONMENTS[environment] + endpoint
-    end
+    url =
+      if is_nil(environment) do
+        endpoint
+      else
+        @environments[environment] <> endpoint
+      end
 
-    @headers = headers(@commerce_code, @api_key)
+    middleware = [
+      {Tesla.Middleware.BaseUrl, url},
+      Tesla.Middleware.JSON,
+      {Tesla.Middleware.Headers, headers(commerce_code, api_key)}
+    ]
+
+    Tesla.client(middleware)
   end
+
+  # def client(token) do
+  #  middleware = [
+  #    {Tesla.Middleware.BaseUrl, "https://api.github.com"},
+  #    Tesla.Middleware.JSON,
+  #    {Tesla.Middleware.Headers, [{"authorization", "token: " <> token }]}
+  #  ]
+
+  #  Tesla.client(middleware)
+  # end
 
   def set_patpass() do
     @headers = headers_patpass(@commerce_code, @api_key)
   end
 
-  def post(body) do
-    build_http_request("post", body)
+  def post(client, body) do
+    Tesla.post(client, "/", body) |> handle_response
   end
 
-  def put(body) do
-    build_http_request("put", body)
+  def put(client, body) do
+    Tesla.put(client, "/", body) |> handle_response
   end
 
-  def get do
-    build_http_request("get")
+  def get(client) do
+    Tesla.get(client, "/") |> handle_response
   end
 
-  def delete(body) do
-    build_http_request("delete", body)
+  def delete(client, body) do
+    Tesla.delete(client, "/", body) |> handle_response
   end
 
+  # def build_http_request(method, body \\ nil) when not in [:put, :post] do
+  #  raise TransbankError, "Transbank Error: Incorrect Request type" # unless %w[put post].include?(method.downcase)
+  # end
   def build_http_request(method, body \\ nil) do
     # raise TransbankError, "Transbank Error: Incorrect Request type" unless %w[put post].include?(method.downcase)
     # uri, http = build_client
@@ -71,18 +91,26 @@ defmodule TransbankSdk.Shared.RequestService do
   end
 
   def headers(commerce_code, api_key) do
-    %{
-      "Tbk-Api-Key-Id" => commerce_code.to_s,
-      "Tbk-Api-Key-Secret" => api_key,
-      "Content-Type" => "application/json"
-    }
+    [
+      {"Tbk-Api-Key-Id", commerce_code},
+      {"Tbk-Api-Key-Secret", api_key},
+      {"Content-Type", "application/json"}
+    ]
   end
 
   def headers_patpass(commerce_code, api_key) do
-    %{
-      "commercecode" => commerce_code.to_s,
-      "Authorization" => api_key,
-      "Content-Type" => "application/json"
-    }
+    [
+      {"commercecode", commerce_code},
+      {"Authorization", api_key},
+      {"Content-Type", "application/json"}
+    ]
+  end
+
+  defp handle_response({:ok, %{body: %{"error" => error}}}) do
+    {:error, error}
+  end
+
+  defp handle_response({:ok, %{body: body}}) do
+    {:ok, body}
   end
 end

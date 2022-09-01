@@ -1,136 +1,150 @@
-defmodule TransbankSdk.Webpay.Oneclick.MallTransaction do
-  # class MallTransaction < .TransbankSdk.Common.BaseTransaction
-  @default_environment :integration
-  @resources_url TransbankSdk.Common.ApiConstants.ONECLICK_ENDPOINT
-  @authorize_endpoint @resources_url <> "/transactions"
-  @status_endpoint @resources_url <> "/transactions/%{token}"
-  @refund_endpoint @resources_url <> "/transactions/%{token}/refunds"
-  @capture_endpoint @resources_url <> "/transactions/capture"
+defmodule Transbank.Webpay.Oneclick.MallTransaction do
+  defstruct [
+    :commerce_code,
+    :api_key,
+    :environment
+  ]
 
-  def initialize(
-        commerce_code = TransbankSdk.Common.IntegrationCommerceCodes.oneclick_mall(),
-        api_key = TransbankSdk.Common.IntegrationApiKeys.webpay(),
-        environment = DEFAULT_ENVIRONMENT
+  # class MallTransaction < .Transbank.Common.BaseTransaction
+  def default_environment, do: :integration
+  def resources_url, do: Transbank.Common.ApiConstants.oneclick_endpoint()
+  def authorize_endpoint, do: resources_url <> "/transactions"
+  def status_endpoint(token), do: resources_url <> "/transactions/#{token}"
+  def refund_endpoint(token), do: resources_url <> "/transactions/#{token}/refunds"
+  def capture_endpoint, do: resources_url <> "/transactions/capture"
+
+  def new(
+        # = Transbank.Common.IntegrationCommerceCodes.oneclick_mall(),
+        commerce_code,
+        # = Transbank.Common.IntegrationApiKeys.webpay(),
+        api_key,
+        environment \\ default_environment()
       ) do
-    super(commerce_code, api_key, environment)
+    struct(
+      __MODULE__,
+      Transbank.Common.BaseTransaction.new(
+        commerce_code,
+        api_key,
+        environment
+      )
+    )
+
+    # super(commerce_code, api_key, environment)
   end
 
-  def authorize(username, tbk_user, parent_buy_order, details) do
-    TransbankSdk.Common.Validation.has_text_with_max_length(
+  def authorize(trx, username, tbk_user, parent_buy_order, details) do
+    Transbank.Common.Validation.has_text_with_max_length(
       username,
-      TransbankSdk.Common.ApiConstants.user_name_length(),
+      Transbank.Common.ApiConstants.user_name_length(),
       "username"
     )
 
-    TransbankSdk.Common.Validation.has_text_with_max_length(
+    Transbank.Common.Validation.has_text_with_max_length(
       tbk_user,
-      TransbankSdk.Common.ApiConstants.tbk_user_length(),
+      Transbank.Common.ApiConstants.tbk_user_length(),
       "tbk_user"
     )
 
-    TransbankSdk.Common.Validation.has_text_with_max_length(
+    Transbank.Common.Validation.has_text_with_max_length(
       parent_buy_order,
-      TransbankSdk.Common.ApiConstants.buy_order_length(),
+      Transbank.Common.ApiConstants.buy_order_length(),
       "parent_buy_order"
     )
 
     request_service =
-      TransbankSdk.Shared.RequestService.new(
-        @environment,
-        @authorize_endpoint,
-        @commerce_code,
-        @api_key
+      Transbank.Shared.RequestService.new(
+        trx.environment,
+        authorize_endpoint(),
+        trx.commerce_code,
+        trx.api_key
       )
 
-    request_service.post(%{
-      username: username,
-      tbk_user: tbk_user,
-      buy_order: parent_buy_order,
-      details: details
-    })
+    Transbank.Shared.RequestService.post(
+      request_service,
+      %{
+        username: username,
+        tbk_user: tbk_user,
+        buy_order: parent_buy_order,
+        details: details
+      }
+    )
   end
 
-  def capture(child_commerce_code, child_buy_order, authorization_code, amount) do
-    TransbankSdk.Common.Validation.has_text_with_max_length(
+  def capture(trx, child_commerce_code, child_buy_order, authorization_code, amount) do
+    Transbank.Common.Validation.has_text_with_max_length(
       child_commerce_code,
-      TransbankSdk.Common.ApiConstants.COMMERCE_CODE_LENGTH,
+      Transbank.Common.ApiConstants.COMMERCE_CODE_LENGTH,
       "child_commerce_code"
     )
 
-    TransbankSdk.Common.Validation.has_text_with_max_length(
+    Transbank.Common.Validation.has_text_with_max_length(
       child_buy_order,
-      TransbankSdk.Common.ApiConstants.BUY_ORDER_LENGTH,
+      Transbank.Common.ApiConstants.BUY_ORDER_LENGTH,
       "child_buy_order"
     )
 
-    TransbankSdk.Common.Validation.has_text_with_max_length(
+    Transbank.Common.Validation.has_text_with_max_length(
       authorization_code,
-      TransbankSdk.Common.ApiConstants.AUTHORIZATION_CODE_LENGTH,
+      Transbank.Common.ApiConstants.AUTHORIZATION_CODE_LENGTH,
       "authorization_code"
     )
 
-    request_service =
-      TransbankSdk.Shared.RequestService.new(
-        @environment,
-        @capture_endpoint,
-        @commerce_code,
-        @api_key
-      )
-
-    request_service.put(
+    Transbank.Shared.RequestService.new(
+      trx.environment,
+      capture_endpoint(),
+      trx.commerce_code,
+      trx.api_key
+    )
+    |> Transbank.Shared.RequestService.put(%{
       commerce_code: child_commerce_code,
       buy_order: child_buy_order,
       authorization_code: authorization_code,
       capture_amount: amount
-    )
+    })
   end
 
-  def status(buy_order) do
-    TransbankSdk.Common.Validation.has_text_with_max_length(
+  def status(trx, buy_order) do
+    Transbank.Common.Validation.has_text_with_max_length(
       buy_order,
-      TransbankSdk.Common.ApiConstants.BUY_ORDER_LENGTH,
+      Transbank.Common.ApiConstants.BUY_ORDER_LENGTH,
       "buy_order"
     )
 
-    request_service =
-      TransbankSdk.Shared.RequestService.new(
-        @environment,
-        format(@status_endpoint, token: buy_order),
-        @commerce_code,
-        @api_key
-      )
-
-    request_service.get
+    Transbank.Shared.RequestService.new(
+      trx.environment,
+      status_endpoint(buy_order),
+      trx.commerce_code,
+      trx.api_key
+    )
+    |> Transbank.Shared.RequestService.get()
   end
 
-  def refund(buy_order, child_commerce_code, child_buy_order, amount) do
-    TransbankSdk.Common.Validation.has_text_with_max_length(
+  def refund(trx, buy_order, child_commerce_code, child_buy_order, amount) do
+    Transbank.Common.Validation.has_text_with_max_length(
       buy_order,
-      TransbankSdk.Common.ApiConstants.BUY_ORDER_LENGTH,
+      Transbank.Common.ApiConstants.BUY_ORDER_LENGTH,
       "buy_order"
     )
 
-    TransbankSdk.Common.Validation.has_text_with_max_length(
+    Transbank.Common.Validation.has_text_with_max_length(
       child_commerce_code,
-      TransbankSdk.Common.ApiConstants.COMMERCE_CODE_LENGTH,
+      Transbank.Common.ApiConstants.COMMERCE_CODE_LENGTH,
       "child_commerce_code"
     )
 
-    TransbankSdk.Common.Validation.has_text_with_max_length(
+    Transbank.Common.Validation.has_text_with_max_length(
       child_buy_order,
-      TransbankSdk.Common.ApiConstants.BUY_ORDER_LENGTH,
+      Transbank.Common.ApiConstants.BUY_ORDER_LENGTH,
       "child_buy_order"
     )
 
-    request_service =
-      TransbankSdk.Shared.RequestService.new(
-        @environment,
-        format(REFUND_ENDPOINT, token: buy_order),
-        @commerce_code,
-        @api_key
-      )
-
-    request_service.post(
+    Transbank.Shared.RequestService.new(
+      trx.environment,
+      refund_endpoint(buy_order),
+      trx.commerce_code,
+      trx.api_key
+    )
+    |> Transbank.Shared.RequestService.post(
       detail_buy_order: child_buy_order,
       commerce_code: child_commerce_code,
       amount: amount

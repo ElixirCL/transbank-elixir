@@ -1,4 +1,4 @@
-# TransbankSdk
+# Transbank
 
 SDK Transbank no oficial basado en versión Ruby: 
 + https://github.com/TransbankDevelopers/transbank-sdk-ruby

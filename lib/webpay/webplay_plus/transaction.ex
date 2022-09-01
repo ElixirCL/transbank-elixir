@@ -1,22 +1,31 @@
-defmodule TransbankSdk.Webpay.WebpayPlus do
-  # class Transaction < Transbank.Common.BaseTransaction
-  @default_environment :integration
-  @resources_url Transbank.Common.ApiConstants.webpay_endpoint()
-  @create_endpoint @resources_url + "/transactions/"
-  @commit_endpoint @resources_url + "/transactions/%{token}"
-  @status_endpoint @resources_url + "/transactions/%{token}"
-  @refund_endpoint @resources_url + "/transactions/%{token}/refunds"
-  @capture_endpoint @resources_url + "/transactions/%{token}/capture"
+defmodule Transbank.Webpay.WebpayPlus.Transaction do
+  defstruct [
+    :commerce_code,
+    :api_key,
+    :environment
+  ]
 
-  def initialize(
-        # commerce_code = Transbank.Common.IntegrationCommerceCodes.webpay_plus,
-        # api_key = Transbank.Common.IntegrationApiKeys.webpay,
-        # environment = @default_environment
+  # class Transaction < Transbank.Common.BaseTransaction
+  def default_environment, do: :integration
+  def resources_url, do: Transbank.Common.ApiConstants.webpay_endpoint()
+  def create_endpoint, do: resources_url() <> "/transactions/"
+  def commit_endpoint(token), do: resources_url() <> "/transactions/#{token}"
+  def status_endpoint(token), do: resources_url() <> "/transactions/#{token}"
+  def refund_endpoint(token), do: resources_url() <> "/transactions/#{token}/refunds"
+  def capture_endpoint(token), do: resources_url() <> "/transactions/#{token}/capture"
+
+  def new(
+        # = Transbank.Common.IntegrationCommerceCodes.webpay_plus,
+        commerce_code,
+        # = Transbank.Common.IntegrationApiKeys.webpay,
+        api_key,
+        environment \\ default_environment()
       ) do
+    struct(__MODULE__, Transbank.Common.BaseTransaction.new(commerce_code, api_key, environment))
     # super(commerce_code, api_key, environment)
   end
 
-  def create(buy_order, session_id, amount, return_url) do
+  def create(trx, buy_order, session_id, amount, return_url) do
     Transbank.Common.Validation.has_text_with_max_length(
       buy_order,
       Transbank.Common.ApiConstants.buy_order_length(),
@@ -37,75 +46,72 @@ defmodule TransbankSdk.Webpay.WebpayPlus do
 
     request_service =
       Transbank.Shared.RequestService.new(
-        @environment,
-        @create_endpoint,
-        @commerce_code,
-        @api_key
+        trx.environment,
+        create_endpoint(),
+        trx.commerce_code,
+        trx.api_key
       )
 
-    request_service.post(%{
-      buy_order: buy_order,
-      session_id: session_id,
-      amount: amount,
-      return_url: return_url
-    })
+    Transbank.Shared.RequestService.post(
+      request_service,
+      %{
+        buy_order: buy_order,
+        session_id: session_id,
+        amount: amount,
+        return_url: return_url
+      }
+    )
   end
 
-  def commit(token) do
+  def commit(trx, token) do
     Transbank.Common.Validation.has_text_with_max_length(
       token,
       Transbank.Common.ApiConstants.token_length(),
       "token"
     )
 
-    request_service =
-      Transbank.Shared.RequestService.new(
-        @environment,
-        format(COMMIT_ENDPOINT, token: token),
-        @commerce_code,
-        @api_key
-      )
-
-    request_service.put(%{})
+    Transbank.Shared.RequestService.new(
+      trx.environment,
+      commit_endpoint(token),
+      trx.commerce_code,
+      trx.api_key
+    )
+    |> Transbank.Shared.RequestService.put(%{})
   end
 
-  def status(token) do
+  def status(trx, token) do
     Transbank.Common.Validation.has_text_with_max_length(
       token,
       Transbank.Common.ApiConstants.token_length(),
       "token"
     )
 
-    request_service =
-      Transbank.Shared.RequestService.new(
-        @environment,
-        format(@status_endpoint, token: token),
-        @commerce_code,
-        @api_key
-      )
-
-    request_service.get
+    Transbank.Shared.RequestService.new(
+      trx.environment,
+      status_endpoint(token),
+      trx.commerce_code,
+      trx.api_key
+    )
+    |> Transbank.Shared.RequestService.get()
   end
 
-  def refund(token, amount) do
+  def refund(trx, token, amount) do
     Transbank.Common.Validation.has_text_with_max_length(
       token,
       Transbank.Common.ApiConstants.token_length(),
       "token"
     )
 
-    request_service =
-      Transbank.Shared.RequestService.new(
-        @environment,
-        format(@refund_endpoint, token: token),
-        @commerce_code,
-        @api_key
-      )
-
-    request_service.post(amount: amount)
+    Transbank.Shared.RequestService.new(
+      trx.environment,
+      refund_endpoint(token),
+      trx.commerce_code,
+      trx.api_key
+    )
+    |> Transbank.Shared.RequestService.post(%{amount: amount})
   end
 
-  def capture(token, buy_order, authorization_code, amount) do
+  def capture(trx, token, buy_order, authorization_code, amount) do
     Transbank.Common.Validation.has_text_with_max_length(
       token,
       Transbank.Common.ApiConstants.token_length(),
@@ -124,16 +130,14 @@ defmodule TransbankSdk.Webpay.WebpayPlus do
       "authorization_code"
     )
 
-    request_service =
-      Transbank.Shared.RequestService.new(
-        @environment,
-        format(@capture_endpoint, token: token),
-        @commerce_code,
-        @api_key
-      )
-
-    request_service.put(
-      buy_order: buy_order,
+    Transbank.Shared.RequestService.new(
+      trx.environment,
+      capture_endpoint(token),
+      trx.commerce_code,
+      trx.api_key
+    )
+    |> Transbank.Shared.RequestService.put(
+      buy_order: trx.buy_order,
       authorization_code: authorization_code,
       capture_amount: amount
     )

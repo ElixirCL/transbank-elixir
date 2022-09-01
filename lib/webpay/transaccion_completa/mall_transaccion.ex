@@ -1,32 +1,47 @@
-defmodule TransbankSdk.TransaccionCompleta.MallTransaccion do
-  # class MallTransaction < .TransbankSdk.Common.BaseTransaction
-  @default_environment :integration
-  @resources_url Transbank.Common.ApiConstants.webpay_endpoint()
-  @create_endpoint @resources_url <> "/transactions/"
-  @installments_endpoint @resources_url <> "/transactions/#{token}/installments"
-  @commit_endpoint @resources_url <> "/transactions/#{token}"
-  @status_endpoint @resources_url <> "/transactions/#{token}"
-  @refund_endpoint @resources_url <> "/transactions/#{token}/refunds"
-  @capture_endpoint @resources_url <> "/transactions/#{token}/capture"
+defmodule Transbank.TransaccionCompleta.MallTransaccion do
+  defstruct [
+    :commerce_code,
+    :api_key,
+    :environment
+  ]
 
-  def initialize(
-        commerce_code = TransbankSdk.Common.IntegrationCommerceCodes.TRANSACCION_COMPLETA_MALL,
-        api_key = TransbankSdk.Common.IntegrationApiKeys.WEBPAY,
-        environment = @default_environment
+  # class MallTransaction < .Transbank.Common.BaseTransaction
+  def default_environment, do: :integration
+  def resources_url, do: Transbank.Common.ApiConstants.webpay_endpoint()
+  def create_endpoint, do: resources_url() <> "/transactions/"
+  def installments_endpoint(token), do: resources_url() <> "/transactions/#{token}/installments"
+  def commit_endpoint(token), do: resources_url() <> "/transactions/#{token}"
+  def status_endpoint(token), do: resources_url() <> "/transactions/#{token}"
+  def refund_endpoint(token), do: resources_url() <> "/transactions/#{token}/refunds"
+  def capture_endpoint(token), do: resources_url() <> "/transactions/#{token}/capture"
+
+  def new(
+        # = Transbank.Common.IntegrationCommerceCodes.TRANSACCION_COMPLETA_MALL,
+        commerce_code,
+        # = Transbank.Common.IntegrationApiKeys.WEBPAY,
+        api_key,
+        environment \\ default_environment()
       ) do
-    super(commerce_code, api_key, environment)
+    struct(
+      __MODULE__,
+      Transbank.Common.BaseTransaction.new(
+        commerce_code,
+        api_key,
+        environment
+      )
+    )
+
+    # super(commerce_code, api_key, environment)
   end
 
-  def create(buy_order, session_id, card_number, card_expiration_date, details, cvv \\ nil) do
-    request_service =
-      TransbankSdk.Shared.RequestService.new(
-        @environment,
-        CREATE_ENDPOINT,
-        @commerce_code,
-        @api_key
-      )
-
-    request_service.post(%{
+  def create(trx, buy_order, session_id, card_number, card_expiration_date, details, cvv \\ nil) do
+    Transbank.Shared.RequestService.new(
+      trx.environment,
+      create_endpoint(),
+      trx.commerce_code,
+      trx.api_key
+    )
+    |> Transbank.Shared.RequestService.post(%{
       buy_order: buy_order,
       session_id: session_id,
       card_number: card_number,
@@ -36,67 +51,68 @@ defmodule TransbankSdk.TransaccionCompleta.MallTransaccion do
     })
   end
 
-  def installments(token, details) do
+  def installments(trx, token, details) do
     request_service =
-      TransbankSdk.Shared.RequestService.new(
-        @environment,
-        format(@installments_endpoint, token: token),
-        @commerce_code,
-        @api_key
+      Transbank.Shared.RequestService.new(
+        trx.environment,
+        installments_endpoint(token),
+        trx.commerce_code,
+        trx.api_key
       )
 
-    # details.map {
-    #  |detail|
-    #  request_service.post({commerce_code: detail['commerce_code'], buy_order: detail['buy_order'], installments_number: detail['installments_number']})
-    # }
+    details
+    |> Enum.map(fn detail ->
+      request_service
+      |> Transbank.Shared.RequestService.post(%{
+        commerce_code: detail["commerce_code"],
+        buy_order: detail["buy_order"],
+        installments_number: detail["installments_number"]
+      })
+    end)
   end
 
-  def commit(token, details) do
-    request_service =
-      TransbankSdk.Shared.RequestService.new(
-        @environment,
-        format(COMMIT_ENDPOINT, token: token),
-        @commerce_code,
-        @api_key
-      )
-
-    request_service.put(%{details: details})
+  def commit(trx, token, details) do
+    Transbank.Shared.RequestService.new(
+      trx.environment,
+      commit_endpoint(token),
+      trx.commerce_code,
+      trx.api_key
+    )
+    |> Transbank.Shared.RequestService.put(%{details: details})
   end
 
-  def status(token) do
-    request_service =
-      TransbankSdk.Shared.RequestService.new(
-        @environment,
-        format(STATUS_ENDPOINT, token: token),
-        @commerce_code,
-        @api_key
-      )
-
-    request_service.get
+  def status(trx, token) do
+    Transbank.Shared.RequestService.new(
+      trx.environment,
+      status_endpoint(token),
+      trx.commerce_code,
+      trx.api_key
+    )
+    |> Transbank.Shared.RequestService.get()
   end
 
-  def refund(token, buy_order, commerce_code_child, amount) do
-    request_service =
-      TransbankSdk.Shared.RequestService.new(
-        @environment,
-        format(REFUND_ENDPOINT, token: token),
-        @commerce_code,
-        @api_key
-      )
-
-    request_service.post(buy_order: buy_order, commerce_code: commerce_code_child, amount: amount)
+  def refund(trx, token, buy_order, commerce_code_child, amount) do
+    Transbank.Shared.RequestService.new(
+      trx.environment,
+      refund_endpoint(token),
+      trx.commerce_code,
+      trx.api_key
+    )
+    |> Transbank.Shared.RequestService.post(
+      buy_order: buy_order,
+      commerce_code: commerce_code_child,
+      amount: amount
+    )
   end
 
-  def capture(token, commerce_code, buy_order, authorization_code, amount) do
-    request_service =
-      TransbankSdk.Shared.RequestService.new(
-        @environment,
-        format(CAPTURE_ENDPOINT, token: token),
-        @commerce_code,
-        @api_key
-      )
-
-    request_service.put(
+  def capture(trx, token, commerce_code, buy_order, authorization_code, amount) do
+    Transbank.Shared.RequestService.new(
+      trx.environment,
+      capture_endpoint(token),
+      trx.commerce_code,
+      trx.api_key
+    )
+    |> Transbank.Shared.RequestService.put(
       buy_order: buy_order,
       commerce_code: commerce_code,
       authorization_code: authorization_code,

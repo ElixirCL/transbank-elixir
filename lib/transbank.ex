@@ -1,6 +1,6 @@
-defmodule TransbankSdk do
+defmodule Transbank do
   @moduledoc """
-  Documentation for `TransbankSdk`.
+  Documentation for `Transbank`.
   """
 
   @doc """
@@ -8,7 +8,7 @@ defmodule TransbankSdk do
 
   ## Examples
 
-      iex> TransbankSdk.hello()
+      iex> Transbank.hello()
       :world
 
   """
