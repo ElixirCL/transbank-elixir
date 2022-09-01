@@ -7,7 +7,6 @@ jobs:
       MIX_ENV: test
     steps:
       - uses: actions/checkout@v2
-      - name: Install Ubuntu dependencies
       - uses: erlef/setup-beam@v1
         with:
           otp-version: '25'
