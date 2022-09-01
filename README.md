@@ -1,12 +1,14 @@
 # Transbank
 
+[![.github/workflows/ci.yml](https://github.com/ElixirCL/transbank-elixir/actions/workflows/ci.yml/badge.svg)](https://github.com/ElixirCL/transbank-elixir/actions/workflows/ci.yml)
+
 SDK Transbank no oficial basado en versión Ruby: 
 + https://github.com/TransbankDevelopers/transbank-sdk-ruby
 
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `transbank_sdk` to your list of dependencies in `mix.exs`:
+by adding `transbank` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -19,30 +21,6 @@ end
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at <https://hexdocs.pm/transbank_sdk>.
-
-
-
-# Transbank SDK Elixir
-
-SDK No Oficial de Transbank
-
-## Requisitos:
-
-- Elixir 13+
-
-# Instalación
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `transbank_sdk` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:transbank_sdk, "~> 0.1.0"}
-  ]
-end
-```
-
 
 ## Documentación 
 
