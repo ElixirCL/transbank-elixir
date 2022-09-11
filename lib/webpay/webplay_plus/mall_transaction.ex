@@ -31,6 +31,55 @@ defmodule Transbank.Webpay.WebpayPlus.MallTransaction do
     )
   end
 
+  def create(trx, buy_order, session_id, return_url, details) do
+    Transbank.Common.Validation.has_text_with_max_length(
+      buy_order,
+      Transbank.Common.ApiConstants.buy_order_length(),
+      "buy_order"
+    )
+
+    Transbank.Common.Validation.has_text_with_max_length(
+      session_id,
+      Transbank.Common.ApiConstants.session_id_length(),
+      "session_id"
+    )
+
+    Transbank.Common.Validation.has_text_with_max_length(
+      return_url,
+      Transbank.Common.ApiConstants.return_url_length(),
+      "return_url"
+    )
+
+    Transbank.Shared.RequestService.new(
+      trx.environment,
+      create_endpoint,
+      trx.commerce_code,
+      trx.api_key
+    )
+    |> Transbank.Shared.RequestService.post(%{
+      buy_order: buy_order,
+      session_id: session_id,
+      return_url: return_url,
+      details: details
+    })
+  end
+
+  def commit(trx, token) do
+    Transbank.Common.Validation.has_text_with_max_length(
+      token,
+      Transbank.Common.ApiConstants.token_length(),
+      "token"
+    )
+
+    Transbank.Shared.RequestService.new(
+      trx.environment,
+      status_endpoint(token),
+      trx.commerce_code,
+      trx.api_key
+    )
+    |> Transbank.Shared.RequestService.put()
+  end
+
   def status(trx, token) do
     Transbank.Common.Validation.has_text_with_max_length(
       token,
