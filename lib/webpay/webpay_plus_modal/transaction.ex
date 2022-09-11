@@ -1,4 +1,4 @@
-defmodule Transbank.Webpay.WebpayPlusModal do
+defmodule Transbank.Webpay.WebpayPlusModal.Transaction do
   # class Transaction < Transbank.Common.BaseTransaction
   defstruct [
     :commerce_code,

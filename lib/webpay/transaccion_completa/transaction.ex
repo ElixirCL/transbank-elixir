@@ -1,4 +1,4 @@
-defmodule Transbank.Webpay.TransaccionCompleta do
+defmodule Transbank.Webpay.TransaccionCompleta.Transaction do
   defstruct [
     :commerce_code,
     :api_key,

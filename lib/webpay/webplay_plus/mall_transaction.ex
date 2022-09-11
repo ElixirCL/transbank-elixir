@@ -1,4 +1,4 @@
-defmodule Transbank.Webpay.WebpayPlus do
+defmodule Transbank.Webpay.WebpayPlus.MallTransaction do
   defstruct [
     :commerce_code,
     :api_key,
