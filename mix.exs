@@ -4,11 +4,19 @@ defmodule Transbank.MixProject do
   def project do
     [
       app: :transbank,
+      package: package(),
       version: "0.1.0",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      description: "Transbank -non official- elixir package.",
+      description: "Transbank -non official- elixir package."
+    ]
+  end
+
+  defp package() do
+    [
+      # This option is only needed when you don't want to use the OTP application name
+      name: "transbank",
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/elixircl/transbank"}
     ]
