@@ -52,7 +52,7 @@ defmodule Transbank.Webpay.WebpayPlus.MallTransaction do
 
     Transbank.Shared.RequestService.new(
       trx.environment,
-      create_endpoint,
+      create_endpoint(),
       trx.commerce_code,
       trx.api_key
     )
@@ -77,7 +77,7 @@ defmodule Transbank.Webpay.WebpayPlus.MallTransaction do
       trx.commerce_code,
       trx.api_key
     )
-    |> Transbank.Shared.RequestService.put()
+    |> Transbank.Shared.RequestService.put(%{})
   end
 
   def status(trx, token) do
